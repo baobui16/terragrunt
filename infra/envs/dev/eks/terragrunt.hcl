@@ -3,21 +3,6 @@ include "env" {
   expose = true
 }
 
-generate "provider" {
-  path      = "provider.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-provider "aws" {
-  region                      = "ap-southeast-1"
-  access_key                  = "dummy"
-  secret_key                  = "dummy"
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
-}
-EOF
-}
-
 dependency "vpc" {
   config_path = "../vpc"
   mock_outputs = {

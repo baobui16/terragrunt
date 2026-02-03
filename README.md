@@ -5,8 +5,8 @@ Repo này dùng Terragrunt để quản lý các cấu hình Terraform triển k
 ## Cấu trúc thư mục
 
 - `infra/`
-  - `terragrunt.hcl`: cấu hình root, đọc secrets từ `infra/secrets.hcl`, define `locals.common_tags` dùng chung.
-  - `secrets.hcl`: **chỉ lưu local, đã được .gitignore**, chứa `aws_region`, `aws_access_key`, `aws_secret_key`.
+  - `terragrunt.hcl`: cấu hình root, define `locals.common_tags` và generate provider AWS (chỉ set `region`, credential lấy từ AWS profile/env/IAM role).
+  - `secrets.hcl`: **optional, chỉ lưu local, đã được .gitignore** (không còn dùng để truyền access key/secret key).
   - `envs/dev/`
     - `dev.hcl`: locals cho environment `dev` (`environment`, `common_tags`).
     - `backend/terragrunt.hcl`: stack tạo S3 bucket & DynamoDB table để làm Terraform remote state/lock.
@@ -64,16 +64,10 @@ Tất cả resource đều được gán tag chung: `Project=EKS`, `ManagedBy=Te
 
 ### Chuẩn bị
 
-1. Cập nhật file secrets (không commit):
-
-   ```hcl
-   # infra/secrets.hcl
-   locals {
-     aws_region     = "ap-southeast-1"
-     aws_access_key = "<YOUR_ACCESS_KEY>"
-     aws_secret_key = "<YOUR_SECRET_KEY>"
-   }
-   ```
+1. Cấu hình AWS credentials bên ngoài Terraform/Terragrunt (một trong các cách):
+  - `aws configure` với profile `default` hoặc đặt `AWS_PROFILE`.
+  - Export env vars: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` (nếu cần).
+  - Hoặc dùng IAM role gán cho EC2/EKS runner.
 
 2. Đảm bảo đã cài:
    - Terraform
