@@ -1,0 +1,56 @@
+include "env" {
+  path   = find_in_parent_folders("dev.hcl")
+  expose = true
+}
+
+generate "provider" {
+  path      = "provider.tf"
+  if_exists = "overwrite"
+  contents  = <<EOF
+provider "aws" {
+  region                      = "ap-southeast-1"
+  access_key                  = "dummy"
+  secret_key                  = "dummy"
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_requesting_account_id  = true
+}
+EOF
+}
+
+dependency "vpc" {
+  config_path = "../vpc"
+
+  # Cho phép plan stack khi vpc chưa apply (chưa có state)
+  mock_outputs = {
+    private_subnet_ids = ["subnet-mock-a", "subnet-mock-b"]
+  }
+  mock_outputs_allowed_terraform_commands = ["plan"]
+}
+
+dependency "iam" {
+  config_path = "../iam-eks"
+
+  mock_outputs = {
+    eks_cluster_role_arn = "arn:aws:iam::123456789012:role/mock-eks-cluster-role"
+  }
+  mock_outputs_allowed_terraform_commands = ["plan"]
+}
+
+terraform {
+  source = "../../../modules/eks"
+}
+
+inputs = {
+  cluster_name            = "eks-dev"
+  cluster_role_arn        = dependency.iam.outputs.eks_cluster_role_arn
+  subnet_ids              = dependency.vpc.outputs.private_subnet_ids
+  kubernetes_version      = "1.30"
+  endpoint_private_access = true
+  endpoint_public_access  = true
+
+  tags = merge(
+    include.env.locals.common_tags,
+    { Environment = include.env.locals.environment }
+  )
+}

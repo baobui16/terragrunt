@@ -1,0 +1,15 @@
+# Ignore Terragrunt/Terraform secrets
+infra/secrets.hcl
+
+# Ignore Terragrunt cache
+.terragrunt-cache/
+**/.terragrunt-cache/
+
+# Ignore Terraform working dirs & state
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+
+# Ignore Terraform lock files
+.terraform.lock.hcl
