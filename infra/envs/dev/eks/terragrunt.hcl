@@ -20,8 +20,6 @@ EOF
 
 dependency "vpc" {
   config_path = "../vpc"
-
-  # Cho phép plan stack khi vpc chưa apply (chưa có state)
   mock_outputs = {
     private_subnet_ids = ["subnet-mock-a", "subnet-mock-b"]
   }
