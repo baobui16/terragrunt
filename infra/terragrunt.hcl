@@ -1,7 +1,5 @@
 locals {
   project_name = "my-eks-project"
-
-  # Region có thể đặt cố định ở đây; credential lấy từ AWS profile/env/IAM role
   aws_region = "ap-southeast-1"
 
   common_tags = {
